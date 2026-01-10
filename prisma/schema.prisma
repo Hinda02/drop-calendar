@@ -1,0 +1,126 @@
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum DropStatus {
+  Planned
+  InProgress
+  Ready
+  Launched
+  Archived
+}
+
+enum DropChannel {
+  Website
+  TikTok
+  Snapchat
+  Instagram
+  Retail
+  Other
+}
+
+enum TaskCategory {
+  Content
+  Samples
+  Shipping
+  Photoshoot
+  Other
+}
+
+enum TaskStatus {
+  Todo
+  Doing
+  Done
+}
+
+enum TaskPriority {
+  Low
+  Medium
+  High
+}
+
+enum ReminderType {
+  DaysBefore
+  AtTime
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  password  String?
+  image     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  drops     Drop[]
+  reminders Reminder[]
+
+  @@map("users")
+}
+
+model Drop {
+  id          String      @id @default(cuid())
+  title       String
+  description String?
+  launchAt    DateTime
+  status      DropStatus @default(Planned)
+  channel     DropChannel
+  tags        String[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  userId      String
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  tasks       Task[]
+  reminders   Reminder[]
+
+  @@map("drops")
+}
+
+model Task {
+  id        String       @id @default(cuid())
+  title     String
+  category  TaskCategory
+  dueAt     DateTime?
+  status    TaskStatus   @default(Todo)
+  priority  TaskPriority @default(Medium)
+  notes     String?
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  dropId    String
+  drop      Drop         @relation(fields: [dropId], references: [id], onDelete: Cascade)
+
+  reminders Reminder[]
+
+  @@map("tasks")
+}
+
+model Reminder {
+  id        String        @id @default(cuid())
+  type      ReminderType
+  value     Int           // days before or timestamp
+  email     String?
+  isActive  Boolean       @default(true)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  userId    String
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  dropId    String?
+  drop      Drop?         @relation(fields: [dropId], references: [id], onDelete: Cascade)
+
+  taskId    String?
+  task      Task?         @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@map("reminders")
+}
