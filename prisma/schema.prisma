@@ -52,10 +52,11 @@ enum ReminderType {
 
 model User {
   id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  password  String?
-  image     String?
+  email     String   @unique @db.VarChar(255)
+  name      String?  @db.VarChar(255)
+  password  String?  @db.VarChar(255)
+  image     String?  @db.VarChar(500)
+  settings  Json?    @default("{\"emailReminders\": false, \"reminderEmail\": \"\"}")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -63,14 +64,15 @@ model User {
   reminders Reminder[]
 
   @@map("users")
+  @@index([email])
 }
 
 model Drop {
   id          String      @id @default(cuid())
-  title       String
-  description String?
+  title       String      @db.VarChar(255)
+  description String?     @db.Text
   launchAt    DateTime
-  status      DropStatus @default(Planned)
+  status      DropStatus  @default(Planned)
   channel     DropChannel
   tags        DropTag[]
   createdAt   DateTime    @default(now())
@@ -83,11 +85,13 @@ model Drop {
   reminders   Reminder[]
 
   @@map("drops")
+  @@index([userId])
+  @@index([launchAt])
 }
 
 model Tag {
   id    String   @id @default(cuid())
-  name  String   @unique
+  name  String   @unique @db.VarChar(100)
   drops DropTag[]
 
   @@map("tags")
@@ -102,17 +106,19 @@ model DropTag {
 
   @@id([dropId, tagId])
   @@map("drop_tags")
+  @@index([dropId])
+  @@index([tagId])
 }
 
 
 model Task {
   id        String       @id @default(cuid())
-  title     String
+  title     String       @db.VarChar(255)
   category  TaskCategory
   dueAt     DateTime?
   status    TaskStatus   @default(Todo)
   priority  TaskPriority @default(Medium)
-  notes     String?
+  notes     String?      @db.Text
   createdAt DateTime     @default(now())
   updatedAt DateTime     @updatedAt
 
@@ -122,13 +128,16 @@ model Task {
   reminders Reminder[]
 
   @@map("tasks")
+  @@index([dropId])
+  @@index([status])
+  @@index([dueAt])
 }
 
 model Reminder {
   id        String        @id @default(cuid())
   type      ReminderType
   value     Int           // days before or timestamp
-  email     String?
+  email     String?       @db.VarChar(255)
   isActive  Boolean       @default(true)
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
@@ -143,4 +152,7 @@ model Reminder {
   task      Task?         @relation(fields: [taskId], references: [id], onDelete: Cascade)
 
   @@map("reminders")
+  @@index([userId])
+  @@index([dropId])
+  @@index([taskId])
 }

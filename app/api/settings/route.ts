@@ -17,19 +17,21 @@ export async function GET(request: NextRequest) {
     }
 
     const user = await prisma.user.findUnique({
-      where: { id: session.user.id }
+      where: { id: session.user.id },
+      select: { email: true, settings: true }
     })
 
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 })
     }
 
-    // For now, we'll return default settings
-    // You can extend the User model to store these preferences
-    return NextResponse.json({
+    // Parse settings from JSON field or return defaults
+    const settings = user.settings as any || {
       emailReminders: false,
       reminderEmail: user.email
-    })
+    }
+
+    return NextResponse.json(settings)
   } catch (error) {
     console.error("Error fetching settings:", error)
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
@@ -46,11 +48,18 @@ export async function PUT(request: NextRequest) {
     const body = await request.json()
     const validatedData = settingsSchema.parse(body)
 
-    // For now, we'll just return the settings
-    // You can extend the User model to store these preferences
-    return NextResponse.json(validatedData)
-  } catch (error: any) {
-    if (error.name === "ZodError") {
+    // Update user settings in database
+    const updatedUser = await prisma.user.update({
+      where: { id: session.user.id },
+      data: {
+        settings: validatedData as any
+      },
+      select: { settings: true }
+    })
+
+    return NextResponse.json(updatedUser.settings)
+  } catch (error) {
+    if (error instanceof z.ZodError) {
       return NextResponse.json({ error: "Validation Error", details: error.errors }, { status: 400 })
     }
     console.error("Error updating settings:", error)

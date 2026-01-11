@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { taskSchema } from "@/lib/validations"
+import { z } from "zod"
 
 export async function POST(request: NextRequest) {
   try {
@@ -35,8 +36,8 @@ export async function POST(request: NextRequest) {
     })
 
     return NextResponse.json(task, { status: 201 })
-  } catch (error: any) {
-    if (error.name === "ZodError") {
+  } catch (error) {
+    if (error instanceof z.ZodError) {
       return NextResponse.json({ error: "Validation Error", details: error.errors }, { status: 400 })
     }
     console.error("Error creating task:", error)

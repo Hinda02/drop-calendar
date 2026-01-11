@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
-import { dropSchema } from "@/lib/validations"
+import { dropUpdateSchema } from "@/lib/validations"
+import { z } from "zod"
 
 export async function GET(
   request: NextRequest,
@@ -55,7 +56,7 @@ export async function PUT(
     }
 
     const body = await request.json()
-    const validatedData = dropSchema.parse(body)
+    const validatedData = dropUpdateSchema.parse(body)
 
     // Check if drop exists and belongs to user
     const existingDrop = await prisma.drop.findUnique({
@@ -71,7 +72,8 @@ export async function PUT(
 
     const updatedDrop = await prisma.drop.update({
       where: {
-        id: params.id
+        id: params.id,
+        userId: session.user.id
       },
       data: validatedData,
       include: {
@@ -83,8 +85,8 @@ export async function PUT(
     })
 
     return NextResponse.json(updatedDrop)
-  } catch (error: any) {
-    if (error.name === "ZodError") {
+  } catch (error) {
+    if (error instanceof z.ZodError) {
       return NextResponse.json({ error: "Validation Error", details: error.errors }, { status: 400 })
     }
     console.error("Error updating drop:", error)
@@ -116,7 +118,8 @@ export async function DELETE(
 
     await prisma.drop.delete({
       where: {
-        id: params.id
+        id: params.id,
+        userId: session.user.id
       }
     })
 

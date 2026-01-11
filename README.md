@@ -16,10 +16,10 @@ A production-ready web application for planning and managing fashion product lau
 ## Tech Stack
 
 - **Frontend**: Next.js 14 (App Router), TypeScript, TailwindCSS
-- **Backend**: Next.js API Routes, Prisma ORM, PostgreSQL
+- **Backend**: Next.js API Routes, Prisma ORM, MySQL
 - **Authentication**: NextAuth.js with Credentials and Google providers
 - **Forms**: React Hook Form with Zod validation
-- **Database**: PostgreSQL with Prisma migrations
+- **Database**: MySQL with Prisma migrations
 - **Email**: Resend (optional)
 
 ## Getting Started
@@ -27,7 +27,7 @@ A production-ready web application for planning and managing fashion product lau
 ### Prerequisites
 
 - Node.js 18+
-- PostgreSQL database
+- MySQL database
 - Google OAuth credentials (optional)
 
 ### Installation
@@ -50,7 +50,7 @@ cp .env.example .env.local
 
 Edit `.env.local` with your configuration:
 ```env
-DATABASE_URL="postgresql://username:password@localhost:5432/drop_calendar"
+DATABASE_URL="mysql://username:password@localhost:3306/drop_calendar"
 NEXTAUTH_SECRET="your-secret-key-here"
 NEXTAUTH_URL="http://localhost:3000"
 GOOGLE_CLIENT_ID="your-google-client-id"
