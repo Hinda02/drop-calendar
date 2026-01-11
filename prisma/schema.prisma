@@ -4,7 +4,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
@@ -72,7 +72,7 @@ model Drop {
   launchAt    DateTime
   status      DropStatus @default(Planned)
   channel     DropChannel
-  tags        String[]
+  tags        DropTag[]
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
 
@@ -84,6 +84,26 @@ model Drop {
 
   @@map("drops")
 }
+
+model Tag {
+  id    String   @id @default(cuid())
+  name  String   @unique
+  drops DropTag[]
+
+  @@map("tags")
+}
+
+model DropTag {
+  dropId String
+  tagId  String
+
+  drop Drop @relation(fields: [dropId], references: [id], onDelete: Cascade)
+  tag  Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([dropId, tagId])
+  @@map("drop_tags")
+}
+
 
 model Task {
   id        String       @id @default(cuid())
