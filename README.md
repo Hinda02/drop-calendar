@@ -59,10 +59,21 @@ RESEND_API_KEY="your-resend-api-key" # optional
 ```
 
 4. Set up the database:
+
+**Option A: Using Prisma (Recommended)**
 ```bash
 npx prisma generate
-npx prisma migrate dev
+npx prisma migrate dev --name init
 npx prisma db seed
+```
+
+**Option B: Using SQL Script (Quick Start with Sample Data)**
+```bash
+# Create the database
+mysql -u root -p -e "CREATE DATABASE drop_calendar;"
+
+# Run the seed script
+mysql -u root -p drop_calendar < prisma/seed.sql
 ```
 
 5. Run the development server:
@@ -116,11 +127,40 @@ The application uses the following main entities:
 - **Task**: Tasks associated with drops, with categories, priorities, and due dates
 - **Reminder**: Email reminders for drops and tasks
 
-## Demo Account
+## Sample Data & Demo Accounts
 
-After running the seed script, you can log in with:
-- Email: `demo@example.com`
-- Password: `password123`
+The seed script (`prisma/seed.sql`) includes comprehensive sample data:
+
+### Demo Accounts
+All accounts use password: `password123`
+
+1. **Demo User** - `demo@example.com`
+   - 5 drops across different statuses and channels
+   - Multiple tasks in various completion states
+   - Reminders configured
+
+2. **Sarah Johnson** - `sarah@fashionbrand.com`
+   - Fashion brand owner with eco-friendly and athleisure drops
+   - Email reminders enabled
+
+3. **Alex Chen** - `alex@streetwear.co`
+   - Streetwear designer with collaboration drops
+   - Minimalist capsule collection
+
+### Sample Data Includes:
+- **9 Product Drops** spanning different channels (Website, Instagram, TikTok, Snapchat, Retail)
+- **19 Tasks** with various statuses (Todo, Doing, Done) and priorities
+- **10 Tags** including Summer, Limited Edition, Sustainable, Collaboration, etc.
+- **8 Reminders** for drops and tasks
+- **5 Status Types**: Planned, In Progress, Ready, Launched, Archived
+- **Realistic Fashion Scenarios**: Summer collections, sneaker collabs, eco-friendly lines, etc.
+
+### Quick Test Scenarios:
+1. **Kanban Board**: Drag drops between status columns
+2. **Calendar View**: See drops distributed across months
+3. **Task Management**: Update task statuses and priorities
+4. **Settings**: Configure email reminders
+5. **Search & Filter**: Find drops by status, channel, or tags
 
 ## Testing
 
